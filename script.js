@@ -2,6 +2,9 @@
 
 //HTML Element References
 
+const topContainer = document.querySelector('.top-container');
+const timerContainer = document.querySelector('.timer-container');
+const instructionsContainer = document.querySelector('.instructions-container');
 const mainContainer = document.querySelector('.main-container');
 const textBox = document.querySelector('.text-box');
 const dataContainer = document.querySelector('.data-container');
@@ -13,15 +16,15 @@ const scoreContainer = document.querySelector('.score-container');
 
 // Sound File References
 
-const correctSound = new Audio('/Typing Game/4 hours/lipsclick.wav');
-const incorrectSound = new Audio('/Typing Game/4 hours/pc-game-ui-error.wav');
+const correctSound = new Audio('lipsclick.wav');
+const incorrectSound = new Audio('pc-game-ui-error.wav');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Sound Volume
 
-correctSound.volume = 1.0;
-incorrectSound.volume = 1.0;
+correctSound.volume = 0.2;
+incorrectSound.volume = 0.2;
 
 // Variable Initializations
 
@@ -73,6 +76,8 @@ let currentScore = 0;
 let levelLength = [15, 20, 25, 30, 35];
 let numberCorrect = 0;
 let numberIncorrect = 0;
+let minutes = '2';
+let seconds = '00';
 
 // Function Definitions
 
@@ -117,6 +122,12 @@ const incorrectType = function () {
   displayScore();
   incorrectSound.play();
 };
+
+const updateTimerDisplay = function () {
+  timerContainer.textContent = `${minutes}:${seconds}`;
+};
+
+const updateTimer = function () {};
 
 // Event Listeners
 
