@@ -1,0 +1,32 @@
+﻿Goal: Make a simple game in one hour.
+
+
+User stories
+
+
+* As a player, I want to earn points so that I can see my progress
+* As a player, I want to learn to type in a gamified way so that I can enjoy learning
+* As a player, I want to avoid bright screens so that I can rest my eyes
+
+
+Features
+* A score tally which updates with letters correctly typed
+* A typing game with letters which appear and then disappear when typed. They appear one at a time on the screen, large, in the center. 
+* A small penalty for typing wrong letters
+*  Dark color palette
+* Ability to choose to skip levels
+* Inclusion of punctuation marks and space bar
+* Gradual fade in of new letters
+* Explosion animation when letter correctly typed
+* Sounds to accompany correct, incorrect, end of level
+* Levels
+* Progress bar to end of level
+* Timer
+* Stats screen at end of level with time and number of mistakes
+* Congratulations message after reaching end of level
+* Advancing from single letters to whole words, then to texts
+* Cursor or highlight which follows typed characters
+* Custom fonts fetched using public APIs
+* A prompt to enter name, which is then displayed in upper-right of page
+* Some sort of fun theme
+* Animations in and out between levels
