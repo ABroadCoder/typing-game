@@ -6,20 +6,21 @@
     <script defer src="script.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css" />
     <link rel="icon" href="safari_hat.ico" type="x-icon" />
-    <title>Typing Game!</title>
+    <title>Typing Game! (13 hours)</title>
   </head>
   <body>
     <div class="overlay"></div>
-    <div class="popup-container">
-      <div class="close-popup-container">X</div>
-      <div class="popup-text-container">Popup Text Here</div>
+    <div class="popup-container" id="welcome-popup">
+      <div class="close-popup-container hidden">X</div>
+      <div class="popup-text-container"></div>
+      <input type="text" class="name-input-field" value="Type your name here" />
+      <button class="start-button">Start</button>
     </div>
     <div class="top-container">
-      <div class="timer-container">Timer Here</div>
+      <div class="timer-container"></div>
       <div class="instructions-container">Type the letter</div>
     </div>
     <div class="main-container"></div>
-    <!-- <div class="text-box"></div> -->
     <div class="data-container">
       <div class="score-overall-container">
         <div class="score-title-container">Points</div>
