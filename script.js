@@ -2,14 +2,14 @@
 
 //HTML Element References
 
-const popupContainer = document.querySelector('.popup-container');
+const popupContainer = document.querySelector('.popup-container:not(.hidden)');
 const closePopupContainer = document.querySelector('.close-popup-container');
 const popupTextContainer = document.querySelector('.popup-text-container');
+const nameInputField = document.querySelector('.name-input-field');
 const topContainer = document.querySelector('.top-container');
 const timerContainer = document.querySelector('.timer-container');
 const instructionsContainer = document.querySelector('.instructions-container');
 const mainContainer = document.querySelector('.main-container');
-const textBox = document.querySelector('.text-box');
 const dataContainer = document.querySelector('.data-container');
 const scoreOverallContainer = document.querySelector(
   '.score-overall-container'
@@ -17,6 +17,8 @@ const scoreOverallContainer = document.querySelector(
 const scoreTitleContainer = document.querySelector('.score-data-container');
 const scoreContainer = document.querySelector('.score-container');
 const overlay = document.querySelector('.overlay');
+const startButton = document.querySelector('.start-button');
+const loadingContainer = document.querySelector('.loading-container');
 
 // Sound File References
 
@@ -78,13 +80,9 @@ const exemptKeys = [
   'Escape',
 ];
 
-let currentLetter = '';
-let currentPoints = 0;
-let currentTarget = 16;
+const pointsTargets = [30, 60, 90, 120, 150, 180];
+
 let levelLength = [15, 20, 25, 30, 35];
-let numberCorrect = 0;
-let numberIncorrect = 0;
-let firstCorrectKeyPressed = false;
 
 const timerValues = [
   [0, 30],
@@ -95,13 +93,23 @@ const timerValues = [
   [3, 0],
 ];
 
-const pointsTargets = [30, 60, 90, 120, 150, 180];
+let currentLetter = '';
+let currentPoints = 0;
+let currentTarget = pointsTargets[0];
+let numberCorrect = 0;
+let numberIncorrect = 0;
+let firstCorrectKeyPressed = false;
+let typingDisabled = false;
+let nameInputFieldClicked = false;
 
-const messages = [
-  'Welcome to the game! To start, close this popup.',
-  "You're out of time! Try again!",
-  "Congratulations! You've won the game!",
-];
+const messages = {
+  welcome: 'Welcome to the game!<br>To start, type your name and click Start.',
+  outOfTime: "You're out of time!<br>Try again!",
+  levelComplete: () =>
+    `Level complete!<br>You typed ${numberCorrect}/${
+      numberCorrect + numberIncorrect
+    } keys correctly on the first try.`,
+};
 
 // Function Definitions
 
@@ -118,6 +126,10 @@ const addBox = function () {
 
 let addPoints = function () {
   currentPoints = currentPoints + 5;
+  if (currentPoints >= currentTarget) {
+    currentPoints = currentTarget;
+    typingDisabled = true;
+  }
 };
 
 let subtractPoints = function () {
@@ -132,22 +144,26 @@ const displayPoints = function () {
   scoreContainer.innerHTML = '';
   scoreContainer.insertAdjacentHTML(
     'afterbegin',
-    `${currentPoints}/${pointsTargets[5]}`
+    `${currentPoints}/${currentTarget}`
   );
 };
 
 const correctType = function () {
-  addPoints();
-  numberCorrect++;
-  displayPoints();
-  correctSound.play();
+  if (!typingDisabled) {
+    addPoints();
+    numberCorrect++;
+    displayPoints();
+    correctSound.play();
+  }
 };
 
 const incorrectType = function () {
-  subtractPoints();
-  numberIncorrect++;
-  displayPoints();
-  incorrectSound.play();
+  if (!typingDisabled) {
+    subtractPoints();
+    numberIncorrect++;
+    displayPoints();
+    incorrectSound.play();
+  }
 };
 
 const updateTimerDisplay = function (minutes, seconds) {
@@ -162,46 +178,75 @@ const runTimer = function (minutes, seconds) {
     if (seconds === 0) {
       if (minutes === 0) {
         clearInterval(timerInterval);
-        showPopup(messages[1]);
+        outOfTime();
       } else {
         minutes--;
         seconds = 59;
+        updateTimerDisplay(minutes, seconds);
+        checkBeatLevel(timerInterval);
       }
     } else {
       seconds--;
+      updateTimerDisplay(minutes, seconds);
+      checkBeatLevel(timerInterval);
     }
-    // if (currentPoints >= currentTarget) {
-    //   // beatLevel();
-    //   currentPoints = 0;
-    //   clearInterval(timerInterval);
-    // }
-    updateTimerDisplay(minutes, seconds);
   }, 1000);
 };
 
-const hidePopup = function () {
-  popupContainer.style.opacity = '0';
+const showPopup = function (text) {
+  overlay.style.display = 'block';
+  popupContainer.style.display = 'flex';
+  popupTextContainer.innerHTML = text;
+  typingDisabled = true;
+};
+
+const escapePopup = function () {
   popupContainer.style.display = 'none';
   overlay.style.display = 'none';
 };
 
-const showPopup = function (text) {
-  popupContainer.style.opacity = '1';
-  popupContainer.style.display = 'flex';
-  popupTextContainer.textContent = text;
-  overlay.style.display = 'block';
-};
+// const displayLoadingIcon = function () {
+//   window.insertAdjacentHTML(
+//     'afterbegin',
+//     `<div class="loading-container">Loading...</div>`
+//   );
+// };
 
 const initializeGame = function () {
   updateTimerDisplay(0, 0);
-  showPopup(messages[0]);
+  showPopup(messages.welcome);
+  currentPoints = 0;
+  displayPoints();
+
+  if (startButton && document.readyState === 'complete') {
+    startButton.addEventListener('click', function () {
+      escapePopup();
+      typingDisabled = false;
+    });
+  }
+  if (
+    !nameInputFieldClicked &&
+    nameInputField &&
+    document.readyState === 'complete'
+  ) {
+    nameInputField.addEventListener('focus', function () {
+      nameInputFieldClicked = true;
+      nameInputField.value = '';
+    });
+  }
 };
 
-// const beatLevel = function () {
-//   showPopup(messages[2]);
-//   clearInterval(timerInterval);
-//   victorySound.play();
-// };
+const outOfTime = function () {
+  showPopup(messages.outOfTime);
+};
+
+const checkBeatLevel = function (timerName) {
+  if (currentPoints >= currentTarget) {
+    showPopup(messages.levelComplete());
+    victorySound.play();
+    clearInterval(timerName);
+  }
+};
 
 // Event Listeners
 
@@ -214,7 +259,11 @@ window.addEventListener('keyup', function (e) {
   console.log(e.key);
   if (exemptKeys.includes(e.key)) {
     return;
-  } else if (e.key.toUpperCase() === currentLetter) {
+  } else if (
+    e.key.toUpperCase() === currentLetter &&
+    !typingDisabled &&
+    currentPoints < currentTarget
+  ) {
     addBox();
     correctType();
     if (firstCorrectKeyPressed === false) {
@@ -227,14 +276,23 @@ window.addEventListener('keyup', function (e) {
   }
 });
 
-closePopupContainer.addEventListener('click', hidePopup);
-window.addEventListener('keyup', function (e) {
-  if (e.key === 'Escape') {
-    initializeGame();
-    hidePopup();
+closePopupContainer.addEventListener('click', function (e) {
+  const popup = e.target.parentElement;
+  if (popup) {
+    popup.style.display = 'none';
+    overlay.style.display = 'none';
   }
 });
 
-// Window Initialization
+window.addEventListener('keyup', function (e) {
+  if (e.key === 'Escape' && popupContainer.style.display !== 'none') {
+    escapePopup();
+  }
+});
 
-initializeGame();
+console.log(nameInputField);
+
+// Window Initialization
+document.addEventListener('DOMContentLoaded', function () {
+  initializeGame();
+});
