@@ -2,7 +2,9 @@
 
 //HTML Element References
 
-const popupContainer = document.querySelector('.popup-container:not(.hidden)');
+const popupContainer = document.querySelector('.popup-container');
+const welcomePopup = document.querySelector('.welcome-popup');
+const outOfTimePopup = document.querySelector('.out-of-time-popup');
 const closePopupContainer = document.querySelector('.close-popup-container');
 const popupTextContainer = document.querySelector('.popup-text-container');
 const nameInputField = document.querySelector('.name-input-field');
@@ -11,13 +13,16 @@ const timerContainer = document.querySelector('.timer-container');
 const instructionsContainer = document.querySelector('.instructions-container');
 const mainContainer = document.querySelector('.main-container');
 const dataContainer = document.querySelector('.data-container');
+const playerNameContainer = document.querySelector('.player-name-container');
 const scoreOverallContainer = document.querySelector(
   '.score-overall-container'
 );
 const scoreTitleContainer = document.querySelector('.score-data-container');
 const scoreContainer = document.querySelector('.score-container');
 const overlay = document.querySelector('.overlay');
-const startButton = document.querySelector('.start-button');
+const submitButton = document.querySelector('.submit-button');
+const retryButton = document.querySelector('.retry-button');
+const continueButton = document.querySelector('.continue-button');
 const loadingContainer = document.querySelector('.loading-container');
 
 // Sound File References
@@ -100,7 +105,8 @@ let numberCorrect = 0;
 let numberIncorrect = 0;
 let firstCorrectKeyPressed = false;
 let typingDisabled = false;
-let nameInputFieldClicked = false;
+let nameInputFieldFocused = false;
+let playerName = '';
 
 const messages = {
   welcome: 'Welcome to the game!<br>To start, type your name and click Start.',
@@ -193,58 +199,74 @@ const runTimer = function (minutes, seconds) {
   }, 1000);
 };
 
-const showPopup = function (text) {
-  overlay.style.display = 'block';
-  popupContainer.style.display = 'flex';
-  popupTextContainer.innerHTML = text;
-  typingDisabled = true;
+const showPopup = function (popupName) {
+  const popupElement = document.querySelector(popupName);
+  if (popupElement) {
+    popupElement.classList.remove('hidden');
+    typingDisabled = true;
+  }
 };
 
-const escapePopup = function () {
-  popupContainer.style.display = 'none';
-  overlay.style.display = 'none';
+const escapePopup = function (popupName) {
+  console.log('Escaping popup!');
+  const popupElement = document.querySelector(popupName);
+  console.log('Before:', popupElement.classList, overlay.classList);
+  popupElement.classList.add('hidden');
+  overlay.classList.add('hidden');
+  console.log('After:', popupElement.classList, overlay.classList);
 };
-
-// const displayLoadingIcon = function () {
-//   window.insertAdjacentHTML(
-//     'afterbegin',
-//     `<div class="loading-container">Loading...</div>`
-//   );
-// };
 
 const initializeGame = function () {
   updateTimerDisplay(0, 0);
-  showPopup(messages.welcome);
+  showPopup('.welcome-popup');
   currentPoints = 0;
   displayPoints();
 
-  if (startButton && document.readyState === 'complete') {
-    startButton.addEventListener('click', function () {
-      escapePopup();
-      typingDisabled = false;
+  if (!welcomePopup.classList.contains('hidden')) {
+    submitButton.addEventListener('click', updateNameInputField);
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        updateNameInputField();
+      }
     });
   }
-  if (
-    !nameInputFieldClicked &&
-    nameInputField &&
-    document.readyState === 'complete'
-  ) {
+  if (!nameInputFieldFocused && nameInputField) {
     nameInputField.addEventListener('focus', function () {
-      nameInputFieldClicked = true;
+      nameInputFieldFocused = true;
       nameInputField.value = '';
     });
   }
 };
 
+const updateNameInputField = function () {
+  if (nameInputField.value.trim() === '' || !nameInputFieldFocused) {
+    alert('Please enter your name');
+  } else {
+    playerName = nameInputField.value;
+    playerNameContainer.textContent = `${playerName}`;
+    escapePopup('.welcome-popup');
+    typingDisabled = false;
+  }
+};
+
 const outOfTime = function () {
-  showPopup(messages.outOfTime);
+  showPopup('.out-of-time-popup');
 };
 
 const checkBeatLevel = function (timerName) {
   if (currentPoints >= currentTarget) {
-    showPopup(messages.levelComplete());
+    showPopup('.level-complete-popup');
+    typingDisabled = true;
     victorySound.play();
     clearInterval(timerName);
+    continueButton.addEventListener('click', function () {
+      escapePopup('.level-complete-popup');
+    });
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        escapePopup('.level-complete-popup');
+      }
+    });
   }
 };
 
@@ -271,7 +293,7 @@ window.addEventListener('keyup', function (e) {
       runTimer(...timerValues[1]);
       console.log(...timerValues[1]);
     }
-  } else {
+  } else if (!typingDisabled) {
     incorrectType();
   }
 });
@@ -279,20 +301,16 @@ window.addEventListener('keyup', function (e) {
 closePopupContainer.addEventListener('click', function (e) {
   const popup = e.target.parentElement;
   if (popup) {
-    popup.style.display = 'none';
-    overlay.style.display = 'none';
+    popup.classList.add('hidden');
+    overlay.classList.add('hidden');
   }
 });
 
 window.addEventListener('keyup', function (e) {
-  if (e.key === 'Escape' && popupContainer.style.display !== 'none') {
-    escapePopup();
+  if (e.key === 'Escape') {
+    escapePopup('.popup-container');
   }
 });
 
-console.log(nameInputField);
-
 // Window Initialization
-document.addEventListener('DOMContentLoaded', function () {
-  initializeGame();
-});
+initializeGame();
