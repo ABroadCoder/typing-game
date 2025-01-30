@@ -5,6 +5,7 @@
 const popupContainer = document.querySelector('.popup-container');
 const welcomePopup = document.querySelector('.welcome-popup');
 const outOfTimePopup = document.querySelector('.out-of-time-popup');
+const levelCompletePopup = document.querySelector('.level-complete-popup');
 const closePopupContainer = document.querySelector('.close-popup-container');
 const popupTextContainer = document.querySelector('.popup-text-container');
 const nameInputField = document.querySelector('.name-input-field');
@@ -98,9 +99,10 @@ const timerValues = [
   [3, 0],
 ];
 
+let levelIndex = 0;
 let currentLetter = '';
 let currentPoints = 0;
-let currentTarget = pointsTargets[0];
+let currentTarget = pointsTargets[levelIndex];
 let numberCorrect = 0;
 let numberIncorrect = 0;
 let firstCorrectKeyPressed = false;
@@ -255,10 +257,13 @@ const outOfTime = function () {
 
 const checkBeatLevel = function (timerName) {
   if (currentPoints >= currentTarget) {
+    clearInterval(timerName);
     showPopup('.level-complete-popup');
+    levelCompletePopup.querySelector(
+      '.popup-text-container'
+    ).innerHTML = `Level ${levelIndex} complete!`;
     typingDisabled = true;
     victorySound.play();
-    clearInterval(timerName);
     continueButton.addEventListener('click', function () {
       escapePopup('.level-complete-popup');
     });
@@ -267,6 +272,7 @@ const checkBeatLevel = function (timerName) {
         escapePopup('.level-complete-popup');
       }
     });
+    levelIndex++;
   }
 };
 
