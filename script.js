@@ -31,6 +31,8 @@ const loadingContainer = document.querySelector('.loading-container');
 const correctSound = new Audio('lipsclick.wav');
 const incorrectSound = new Audio('pc-game-ui-error.wav');
 const victorySound = new Audio('succeeded-game-jingle.wav');
+const victorySound2 = new Audio('fanfare-trumpets.mp3');
+const type1 = new Audio('type1.wav');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -283,19 +285,19 @@ const checkBeatLevel = function () {
     clearInterval(intervalId);
 
     showPopup('.level-complete-popup');
+    overlay.classList.remove('hidden');
 
     if (levelIndex === 5) {
       levelCompletePopup.querySelector(
         '.popup-text-container'
-      ).innerHTML = `You've beaten the game!<br>Congratulations! Play again?`;
-      levelCompletePopup.querySelector('.continue-button').textContent =
-        'Play again!';
+      ).innerHTML = `Congratulations,<br>${playerName}<br>You've beaten the game! Play again?`;
+      continueButton.textContent = 'Play again!';
       levelIndex = 0;
-      victorySound.play();
+      victorySound2.play();
     } else {
       levelCompletePopup.querySelector(
         '.popup-text-container'
-      ).innerHTML = `Level ${levelIndex + 1} complete!`;
+      ).innerHTML = `Level ${levelIndex + 1} of 6 complete!`;
       victorySound.play();
       levelIndex++;
     }
