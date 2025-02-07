@@ -36,7 +36,7 @@ Gradual fade in of new letters
 Disable typing after level complete screen 1. by adding && if(currentScore!==currentTarget) to incorrectType() OR 2. by finding how the typingDisabled flag is set to false after the levelCompletePopup is closed, if indeed it is…
 Explosion animation when letter correctly typed
 Sounds to accompany correct, incorrect key presses
-Sound for end of round(victory), loading(magic)
+Sound for end of round(victory), loading
 Levels
 Popup element template which can be used between levels, for rewards, etc.
 An "X" icon which closes the popup when clicked
@@ -63,14 +63,6 @@ Congratulations message after reaching end of level
 Advancing from single letters to whole words, then to texts
 Cursor or highlight which follows typed characters
 Custom fonts fetched using public APIs
-Some sort of fun theme…whale? falcon? each level new animal? Earn badges? Add new companions? Sounds reflective of each animal for key presses. Animal Whisperer as title or similar. Or bubble theme, penguin? Or detective solving a mystery (could have a fun story to motivate, clues to collect, story revealed through text typed). ToucanType.
-Keyboard graphic showing where to place fingers
-Use design bid site to get inspiration, or design it yourself
-Parallax
-HTML canvas
-Polly the Parakeyt, etc., with pixel-art open-source or freely usable AI image gens
-Animations in and out between levels
-Parceled for distribution, operational when downloaded from GitHub
 Add Start button to popup which is linked to ENTER
 add loading icon
 add "please type your name" if nothing has been entered and ENTER or Start clicked
