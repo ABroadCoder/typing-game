@@ -10,15 +10,24 @@ const closePopupContainer = document.querySelector('.close-popup-container');
 const popupTextContainer = document.querySelector('.popup-text-container');
 const nameInputField = document.querySelector('.name-input-field');
 const topContainer = document.querySelector('.top-container');
+const timerOverallContainer = document.querySelector(
+  '.timer-overall-container'
+);
 const timerContainer = document.querySelector('.timer-container');
-const instructionsContainer = document.querySelector('.instructions-container');
+const timerTitleContainer = document.querySelector('.timer-title-container');
 const mainContainer = document.querySelector('.main-container');
-const dataContainer = document.querySelector('.data-container');
+const mainLeftContainer = document.querySelector('.main-left-container');
+const mainCenterContainer = document.querySelector('.main-center-container');
+const mainRightContainer = document.querySelector('.main-right-container');
+const playerOverallContainer = document.querySelector(
+  '.player-overall-container'
+);
 const playerNameContainer = document.querySelector('.player-name-container');
+const playerLevelContainer = document.querySelector('.player-level-container');
 const scoreOverallContainer = document.querySelector(
   '.score-overall-container'
 );
-const scoreTitleContainer = document.querySelector('.score-data-container');
+const scoreTitleContainer = document.querySelector('.score-title-container');
 const scoreContainer = document.querySelector('.score-container');
 const overlay = document.querySelector('.overlay');
 const submitButton = document.querySelector('.submit-button');
@@ -30,17 +39,28 @@ const loadingContainer = document.querySelector('.loading-container');
 
 const correctSound = new Audio('lipsclick.wav');
 const incorrectSound = new Audio('pc-game-ui-error.wav');
-const victorySound = new Audio('succeeded-game-jingle.wav');
+const victorySound = new Audio('mystery_music.wav');
 const victorySound2 = new Audio('fanfare-trumpets.mp3');
 const type1 = new Audio('type1.wav');
+const type2 = new Audio('type2.wav');
+const type3 = new Audio('type3.wav');
+const type4 = new Audio('type4.wav');
+const type5 = new Audio('type5.wav');
+const type6 = new Audio('type6.wav');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Sound Volume
 
-correctSound.volume = 0.2;
-incorrectSound.volume = 0.2;
-victorySound.volume = 0.2;
+correctSound.volume = 0.1;
+incorrectSound.volume = 0.05;
+type1.volume = 0.5;
+type2.volume = 0.5;
+type3.volume = 0.5;
+type4.volume = 0.5;
+type5.volume = 0.5;
+type6.volume = 0.5;
+victorySound.volume = 0.1;
 
 // Variable Initializations
 
@@ -86,6 +106,7 @@ const exemptKeys = [
   'ArrowRight',
   'Backspace',
   'Escape',
+  'Tab',
 ];
 
 const pointsTargets = [30, 60, 90, 120, 150, 180];
@@ -103,6 +124,7 @@ const timerValues = [
 
 let levelIndex = 0;
 let currentLetter = '';
+let previousLetter = '';
 let currentPoints = 0;
 let currentTarget = 0;
 let numberCorrect = 0;
@@ -112,6 +134,17 @@ let typingDisabled = false;
 let nameInputFieldFocused = false;
 let playerName = '';
 let intervalId;
+let nameInputDefaultPresent = true;
+// const randomType = `type${Math.ceil(Math.random * 6)}`;
+
+const typeSounds = {
+  1: type1,
+  2: type2,
+  3: type3,
+  4: type4,
+  5: type5,
+  6: type6,
+};
 
 const messages = {
   welcome: 'Welcome to the game!<br>To begin, type your name and click Start.',
@@ -125,14 +158,18 @@ const messages = {
 // Function Definitions
 
 let generateLetter = function () {
-  return letterArray[Math.round(Math.random() * 25)];
+  do {
+    currentLetter = letterArray[Math.round(Math.random() * 25)];
+  } while (currentLetter === previousLetter);
+  previousLetter = currentLetter;
+  return currentLetter;
 };
 
 const addBox = function () {
-  currentLetter = generateLetter();
+  generateLetter();
   const html = `<div class="text-box">${currentLetter}</div>`;
-  mainContainer.innerHTML = '';
-  mainContainer.insertAdjacentHTML('afterbegin', html);
+  mainCenterContainer.innerHTML = '';
+  mainCenterContainer.insertAdjacentHTML('afterbegin', html);
 };
 
 let addPoints = function () {
@@ -161,11 +198,16 @@ const displayPoints = function () {
   );
 };
 
+const randomTypeSound = function () {
+  const randomIndex = Math.ceil(Math.random() * 4);
+  typeSounds[randomIndex].play();
+};
+
 const correctType = function () {
   if (!typingDisabled) {
     addPoints();
     displayPoints();
-    correctSound.play();
+    randomTypeSound();
     checkBeatLevel();
   }
 };
@@ -214,6 +256,7 @@ const showPopup = function (popupName) {
   if (popupElement) {
     popupElement.classList.remove('hidden');
     typingDisabled = true;
+    overlay.classList.remove('hidden');
   }
 };
 
@@ -233,6 +276,8 @@ const initializeGame = function (i) {
   console.log(...timerValues[levelIndex]);
   if (levelIndex === 0 && playerName === '') {
     showPopup('.welcome-popup');
+    nameInputField.focus();
+    nameInputFieldFocused = true;
   }
 
   currentPoints = 0;
@@ -251,7 +296,6 @@ const initializeGame = function (i) {
   if (!nameInputFieldFocused && nameInputField) {
     nameInputField.addEventListener('focus', function () {
       nameInputFieldFocused = true;
-      nameInputField.value = '';
     });
   }
 };
@@ -260,13 +304,14 @@ const updateNameInputField = function () {
   console.log('updateName called');
   if (nameInputField.value.trim() === '' || !nameInputFieldFocused) {
     alert('Please type your name');
-  } else if (nameInputField.value.length > 30) {
+  } else if (nameInputField.value.length > 20) {
     alert(
-      'Max characters exceeded. Please enter a name up to 30 characters long.'
+      'Max characters exceeded. Please enter a name up to 20 characters long.'
     );
   } else {
     playerName = nameInputField.value;
     playerNameContainer.textContent = `${playerName}`;
+    playerLevelContainer.textContent = `Level ${levelIndex + 1} Sleuth`;
     escapePopup('.welcome-popup');
     typingDisabled = false;
   }
@@ -285,7 +330,7 @@ const checkBeatLevel = function () {
     clearInterval(intervalId);
 
     showPopup('.level-complete-popup');
-    overlay.classList.remove('hidden');
+    // overlay.classList.remove('hidden');
 
     if (levelIndex === 5) {
       levelCompletePopup.querySelector(
@@ -300,6 +345,7 @@ const checkBeatLevel = function () {
       ).innerHTML = `Level ${levelIndex + 1} of 6 complete!`;
       victorySound.play();
       levelIndex++;
+      playerLevelContainer.textContent = `Level ${levelIndex + 1} Sleuth`;
     }
 
     typingDisabled = true;
@@ -330,8 +376,23 @@ const checkBeatLevel = function () {
 //   displayPoints();
 // });
 
+window.addEventListener('keydown', function (e) {
+  if (welcomePopup && nameInputDefaultPresent) {
+    if (e.shiftKey) {
+      nameInputField.value = '';
+      nameInputDefaultPresent = false;
+    } else if (exemptKeys.includes(e.key)) {
+      return;
+    } else {
+      nameInputField.value = `${e.key}`;
+      nameInputDefaultPresent = false;
+    }
+  }
+});
+
 window.addEventListener('keyup', function (e) {
   console.log(e.key);
+
   if (exemptKeys.includes(e.key)) {
     return;
   } else if (
@@ -347,6 +408,20 @@ window.addEventListener('keyup', function (e) {
     }
   } else if (!typingDisabled) {
     incorrectType();
+  }
+});
+
+window.addEventListener('keydown', function (e) {
+  if (welcomePopup && nameInputDefaultPresent) {
+    if (e.shiftKey) {
+      nameInputField.value = `${e.key.toUpperCase()}`;
+      nameInputDefaultPresent = false;
+    } else if (exemptKeys.includes(e.key)) {
+      return;
+    } else {
+      nameInputField.value = `${e.key}`;
+      nameInputDefaultPresent = false;
+    }
   }
 });
 
