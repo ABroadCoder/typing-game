@@ -29,6 +29,8 @@
   display: flex;
   align-items: center;
   background-color: orange;
+  border: 1px solid black;
+  font-size: 84px;
   width: auto;
   height: 75%;
 }
@@ -46,6 +48,8 @@
   display: flex;
   align-items: center;
   background-color: blue;
+  border: 1px solid black;
+  font-size: 84px;
   width: auto;
   height: 75%;
 }
