@@ -56,12 +56,21 @@ const shuffleWords = function () {
   return shuffledWordBank;
 };
 
+const changeWordPosition = function () {
+  outerContainer.style.top = `${
+    (window.innerHeight - outerContainer.offsetHeight) * Math.random()
+  }px`;
+  outerContainer.style.left = `${
+    (window.innerWidth - outerContainer.offsetWidth) * Math.random()
+  }px`;
+};
+
 const displayPrompt = function (i) {
   promptContainer.innerHTML = '';
   for (let j = 0; j <= wordBank[i].length - 1; j++) {
     let newPromptLetterContainer = document.createElement('div');
     newPromptLetterContainer.classList.add('prompt-letter-container');
-    newPromptLetterContainer.classList.add(`prompt-letter-${j + 1}`);
+    newPromptLetterContainer.classList.add(`prompt-letter-${j}`);
     promptContainer.insertAdjacentElement(
       'beforeend',
       newPromptLetterContainer
@@ -75,7 +84,7 @@ const displayTyping = function (i) {
   for (let j = 0; j <= wordBank[i].length - 1; j++) {
     let newTypingLetterContainer = document.createElement('div');
     newTypingLetterContainer.classList.add('typing-letter-container');
-    newTypingLetterContainer.classList.add(`typing-letter-${j + 1}`);
+    newTypingLetterContainer.classList.add(`typing-letter-${j}`);
     typingContainer.insertAdjacentElement(
       'beforeend',
       newTypingLetterContainer
@@ -84,16 +93,24 @@ const displayTyping = function (i) {
 };
 
 const generateWords = function () {
-  console.log(currentWordIndex);
+  changeWordPosition();
+
   numberLettersTyped = 0;
+
   displayPrompt(currentWordIndex);
   displayTyping(currentWordIndex);
+
+  document.querySelector('.prompt-letter-0').classList.add('current-letter');
+
   window.addEventListener('keydown', function handleKeydown(e) {
+    //Exempting non-letter keys
     if (exemptKeys.includes(e.key)) {
       return;
-    } else if (numberLettersTyped === wordBank[currentWordIndex].length - 1) {
+    }
+    //Handling last-letter and last-word cases
+    else if (numberLettersTyped === wordBank[currentWordIndex].length - 1) {
       this.document.querySelector(
-        `.typing-letter-${numberLettersTyped + 1}`
+        `.typing-letter-${numberLettersTyped}`
       ).textContent = e.key;
       numberLettersTyped++;
       this.window.removeEventListener('keydown', handleKeydown);
@@ -108,11 +125,19 @@ const generateWords = function () {
           generateWords(currentWordIndex);
         }, 1000);
       }
-    } else if (numberLettersTyped < wordBank[currentWordIndex].length) {
+    }
+    //Handling before-end cases
+    else if (numberLettersTyped < wordBank[currentWordIndex].length) {
       this.document.querySelector(
-        `.typing-letter-${numberLettersTyped + 1}`
+        `.typing-letter-${numberLettersTyped}`
       ).textContent = e.key;
+      document
+        .querySelector(`.prompt-letter-${numberLettersTyped}`)
+        .classList.remove('current-letter');
       numberLettersTyped++;
+      document
+        .querySelector(`.prompt-letter-${numberLettersTyped}`)
+        .classList.add('current-letter');
     }
   });
 };
@@ -122,6 +147,11 @@ const initializeLevel = function () {
   generateWords();
 };
 // Function calls
-console.log(wordBank);
 initializeLevel();
-console.log(shuffledWordBank);
+
+// console.log(wordBank);
+// console.log(shuffledWordBank);
+// console.log(window.innerHeight);
+// console.log(window.innerWidth);
+// console.log(outerContainer.offsetHeight);
+// console.log(outerContainer.offsetWidth);
