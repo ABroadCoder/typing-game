@@ -12,8 +12,38 @@ const typingLetterContainer = document.querySelector(
 );
 
 // Initial Variables
-const wordBank = ['go', 'fight', 'win', 'glass', 'mystery', 'classical'];
+let wordBank = ['go', 'fight', 'win', 'glass', 'mystery', 'classical'];
 let shuffledWordBank;
+let wordQuantity = 5;
+
+// API call to replace default wordBank with random word entries
+// function populateWordBank() {
+//   const request = new XMLHttpRequest();
+//   request.open('GET', 'https://random-word-api.herokuapp.com/word?number=42');
+//   request.send();
+//   request.addEventListener('load', function () {
+//     const data = JSON.parse(this.responseText);
+//     console.log(data);
+//   });
+// }
+
+async function populateWordBank(number) {
+  try {
+    const response = await fetch(
+      `https://random-word-api.herokuapp.com/word?number=${number}`
+    );
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    // console.log(data);
+    wordBank = data;
+    console.log(wordBank);
+    return wordBank;
+  } catch (error) {
+    console.error('Fetch operation unsuccessful. Error text:', error);
+  }
+}
 
 const exemptKeys = [
   'Meta',
@@ -29,6 +59,7 @@ const exemptKeys = [
   'Backspace',
   'Escape',
   'Tab',
+  'Space',
 ];
 
 let firstLetterTyped = false;
@@ -92,6 +123,17 @@ const displayTyping = function (i) {
   }
 };
 
+const compareLetters = function (index) {
+  if (
+    document.querySelector(`.prompt-letter-${index}`).textContent !==
+    document.querySelector(`.typing-letter-${index}`).textContent
+  ) {
+    document
+      .querySelector(`.typing-letter-${index}`)
+      .classList.add('incorrect-letter');
+  }
+};
+
 const generateWords = function () {
   changeWordPosition();
 
@@ -112,6 +154,10 @@ const generateWords = function () {
       this.document.querySelector(
         `.typing-letter-${numberLettersTyped}`
       ).textContent = e.key;
+      compareLetters(numberLettersTyped);
+      this.document
+        .querySelector(`.prompt-letter-${numberLettersTyped}`)
+        .classList.remove('current-letter');
       numberLettersTyped++;
       this.window.removeEventListener('keydown', handleKeydown);
       if (currentWordIndex === wordBank.length - 1) {
@@ -134,6 +180,7 @@ const generateWords = function () {
       document
         .querySelector(`.prompt-letter-${numberLettersTyped}`)
         .classList.remove('current-letter');
+      compareLetters(numberLettersTyped);
       numberLettersTyped++;
       document
         .querySelector(`.prompt-letter-${numberLettersTyped}`)
@@ -142,12 +189,14 @@ const generateWords = function () {
   });
 };
 
-const initializeLevel = function () {
+async function initializeLevel() {
+  await populateWordBank(wordQuantity);
   shuffleWords();
   generateWords();
-};
+}
 // Function calls
 initializeLevel();
+console.log(wordBank);
 
 // console.log(wordBank);
 // console.log(shuffledWordBank);
