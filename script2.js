@@ -10,11 +10,13 @@ const promptLetterContainer = document.querySelector(
 const typingLetterContainer = document.querySelector(
   '.typing-letter-container'
 );
+const spotlight = document.querySelector('.spotlight');
+const moving = document.querySelectorAll('.moving');
 
 // Initial Variables
 let wordBank = ['go', 'fight', 'win', 'glass', 'mystery', 'classical'];
 let shuffledWordBank;
-let wordQuantity = 5;
+let wordQuantity = 100;
 
 // API call to replace default wordBank with random word entries
 // function populateWordBank() {
@@ -26,24 +28,6 @@ let wordQuantity = 5;
 //     console.log(data);
 //   });
 // }
-
-async function populateWordBank(number) {
-  try {
-    const response = await fetch(
-      `https://random-word-api.herokuapp.com/word?number=${number}`
-    );
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    // console.log(data);
-    wordBank = data;
-    console.log(wordBank);
-    return wordBank;
-  } catch (error) {
-    console.error('Fetch operation unsuccessful. Error text:', error);
-  }
-}
 
 const exemptKeys = [
   'Meta',
@@ -78,6 +62,24 @@ let currentWordIndex = 0;
 //   return letterArray;
 // };
 
+async function populateWordBank(number) {
+  try {
+    const response = await fetch(
+      `https://random-word-api.herokuapp.com/word?number=${number}`
+    );
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    // console.log(data);
+    wordBank = data;
+    console.log(wordBank);
+    return wordBank;
+  } catch (error) {
+    console.error('Fetch operation unsuccessful. Error text:', error);
+  }
+}
+
 const shuffleWords = function () {
   for (let i = wordBank.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * wordBank.length);
@@ -87,14 +89,27 @@ const shuffleWords = function () {
   return shuffledWordBank;
 };
 
-const changeWordPosition = function () {
-  outerContainer.style.top = `${
-    (window.innerHeight - outerContainer.offsetHeight) * Math.random()
-  }px`;
-  outerContainer.style.left = `${
-    (window.innerWidth - outerContainer.offsetWidth) * Math.random()
-  }px`;
-};
+async function changeWordPosition() {
+  // await populateWordBank();
+
+  const randomHeightRatio = Math.random();
+  const randomWidthRatio = Math.random();
+  const boxHeight = outerContainer.getBoundingClientRect().height;
+  const boxWidth = promptContainer.getBoundingClientRect().width;
+
+  moving.forEach(el => {
+    el.style.top = `${
+      0.25 * boxWidth + (window.innerHeight - boxHeight - 0.5 * boxWidth) * 1
+    }px`;
+    el.style.left = `${(window.innerWidth - boxWidth) * randomWidthRatio}px`;
+  });
+  // moving.style.top = `${
+  //   (window.innerHeight - moving.offsetHeight) * Math.random()
+  // }px`;
+  // moving.style.left = `${
+  //   (window.innerWidth - moving.offsetWidth) * Math.random()
+  // }px`;
+}
 
 const displayPrompt = function (i) {
   promptContainer.innerHTML = '';
@@ -123,6 +138,17 @@ const displayTyping = function (i) {
   }
 };
 
+const displaySpotlight = function () {
+  const promptRect = promptContainer.getBoundingClientRect();
+  const outerRect = outerContainer.getBoundingClientRect();
+  const spotlightRect = spotlight.getBoundingClientRect();
+  spotlight.style.width = `${promptRect.width}px`;
+  spotlight.style.height = `${promptRect.width}px`;
+  spotlight.style.top = `${outerRect.top}px`;
+  console.log(outerRect, outerRect.left, outerRect.top);
+  console.log(spotlightRect, spotlightRect.left, spotlightRect.top);
+};
+
 const compareLetters = function (index) {
   if (
     document.querySelector(`.prompt-letter-${index}`).textContent !==
@@ -141,6 +167,7 @@ const generateWords = function () {
 
   displayPrompt(currentWordIndex);
   displayTyping(currentWordIndex);
+  displaySpotlight();
 
   document.querySelector('.prompt-letter-0').classList.add('current-letter');
 
@@ -190,7 +217,7 @@ const generateWords = function () {
 };
 
 async function initializeLevel() {
-  await populateWordBank(wordQuantity);
+  // await populateWordBank(wordQuantity);
   shuffleWords();
   generateWords();
 }
