@@ -4430,6 +4430,18 @@ const initializeGame = function () {
     document
       .querySelectorAll('.letter-box')
       .forEach(el => el.classList.remove('hidden'));
+    document
+      .querySelectorAll('.typed-response-container')
+      .forEach(el => el.classList.add('hidden'));
+  }
+
+  if (gameMode === 'free-typing') {
+    document
+      .querySelectorAll('.letter-box')
+      .forEach(el => el.classList.add('hidden'));
+    document
+      .querySelectorAll('.typed-response-container')
+      .forEach(el => el.classList.remove('hidden'));
   }
 };
 
