@@ -3,20 +3,37 @@
 // HTML Element References
 
 const outerContainer = document.querySelector('.outer-container');
+const option0 = document.querySelector('.option0');
 const option1 = document.querySelector('.option1');
 const option2 = document.querySelector('.option2');
-const option3 = document.querySelector('.option3');
+const letterBox0 = document.querySelector('.letter-box-0');
 const letterBox1 = document.querySelector('.letter-box-1');
 const letterBox2 = document.querySelector('.letter-box-2');
-const letterBox3 = document.querySelector('.letter-box-3');
 const incomingContainer = document.querySelector('.incoming-container');
 const commandLine = document.querySelector('.command-line');
+const typedResponseContainer0 = document.querySelector(
+  '.typed-response-container-0'
+);
+const typedResponseContainer1 = document.querySelector(
+  '.typed-response-container-1'
+);
+const typedResponseContainer2 = document.querySelector(
+  '.typed-response-container-2'
+);
 
-// Variable Definitions
+// Variable Declarations
 
 let letterGroup = 0;
-let currentStep = 0;
-let gameMode = 'single-letter';
+let currentDialogueStep = 0;
+let gameMode = 'free-typing';
+let currentTypingIndex = 0;
+let maxResponseLength = 0;
+let typingContainerShowing = false;
+let selectedResponseIndex;
+let selectedResponse;
+let responseText0;
+let responseText1;
+let responseText2;
 
 let letters = [
   ['F', 'J', 'R', 'U'],
@@ -25,6 +42,20 @@ let letters = [
   ['V', 'B', 'N', 'M'],
   ['S', 'W', 'L', 'O', 'X'],
   ['A', 'Q', 'Z', 'P'],
+];
+
+const excludedKeys = [
+  'Tab',
+  'Meta',
+  'Enter',
+  'Shift',
+  'Control',
+  'Alt',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowDown',
+  'ArrowUp',
+  'Backspace',
 ];
 
 // const dialogue = [
@@ -4363,25 +4394,66 @@ const dialogue = [
 
 // Function Definitions
 
-const displayText = function (i) {
-  incomingContainer.textContent = dialogue[i].m;
-
-  option1.textContent = dialogue[i].answers.first.text;
-  option2.textContent = dialogue[i].answers.second.text;
-  option3.textContent = dialogue[i].answers.third.text;
+const displayText = function () {
+  incomingContainer.textContent = dialogue[currentDialogueStep].m;
 
   if (gameMode === 'single-letter') {
-    randomizeLetters(letterGroup);
+    option0.textContent = dialogue[currentDialogueStep].answers.first.text;
+    option1.textContent = dialogue[currentDialogueStep].answers.second.text;
+    option2.textContent = dialogue[currentDialogueStep].answers.third.text;
 
-    letterBox1.textContent = letters[letterGroup][0];
-    letterBox2.textContent = letters[letterGroup][1];
-    letterBox3.textContent = letters[letterGroup][2];
+    randomizeLetters();
+
+    letterBox0.textContent = letters[letterGroup][0];
+    letterBox1.textContent = letters[letterGroup][1];
+    letterBox2.textContent = letters[letterGroup][2];
+  }
+
+  if (gameMode === 'free-typing') {
+    option0.textContent = '';
+    option1.textContent = '';
+    option2.textContent = '';
+
+    randomizeLetters();
+
+    letterBox0.textContent = letters[letterGroup][0];
+    letterBox1.textContent = letters[letterGroup][1];
+    letterBox2.textContent = letters[letterGroup][2];
+
+    responseText0 = dialogue[currentDialogueStep].answers.first.text;
+    responseText1 = dialogue[currentDialogueStep].answers.second.text;
+    responseText2 = dialogue[currentDialogueStep].answers.third.text;
+
+    const responseTexts = [responseText0, responseText1, responseText2];
+
+    maxResponseLength = Math.max(...responseTexts.map(el => el.length));
+
+    // Loop over responses
+    for (let i = 0; i <= 2; i++) {
+      // Loop over characters in each response
+      for (let j = 0; j <= responseTexts[i].length - 1; j++) {
+        document
+          .querySelector(`.option${i}`)
+          // Place each character in its own HTML element box
+          .insertAdjacentHTML(
+            'beforeend',
+            `<div class="response-character-box response-character-box-${i}-${j}">${responseTexts[i][j]}</div>`
+          );
+        // Prevent collapse of boxes with only a space
+        if (responseTexts[i][j] === ' ') {
+          document
+            .querySelector(`.response-character-box-${i}-${j}`)
+            .classList.add('spacer');
+        }
+      }
+    }
   }
 };
 
-const randomizeLetters = function (letterGroup) {
+const randomizeLetters = function () {
   for (let i = 0; i < letters[letterGroup].length; i++) {
     let j = Math.floor(Math.random() * letters[letterGroup].length);
+    // Shuffle the letters
     [letters[letterGroup][i], letters[letterGroup][j]] = [
       letters[letterGroup][j],
       letters[letterGroup][i],
@@ -4394,114 +4466,454 @@ const listenKeys = function () {
 
   if (gameMode === 'single-letter') {
     console.log(
-      `${letterBox1.textContent}, ${letterBox2.textContent}, ${letterBox3.textContent}`
+      `${letterBox0.textContent}, ${letterBox1.textContent}, ${letterBox2.textContent}`
     );
     window.addEventListener('keyup', e => {
       console.log(e.key);
 
+      if (e.key === letterBox0.textContent.toLowerCase()) {
+        currentDialogueStep = dialogue[currentDialogueStep].answers.first.next;
+        console.log(`currentDialogueStep value is ${currentDialogueStep}`);
+        displayText();
+        return;
+      }
+
       if (e.key === letterBox1.textContent.toLowerCase()) {
-        currentStep = dialogue[currentStep].answers.first.next;
-        console.log(`currentStep value is ${currentStep}`);
-        displayText(currentStep);
+        currentDialogueStep = dialogue[currentDialogueStep].answers.second.next;
+        console.log(`currentDialogueStep value is ${currentDialogueStep}`);
+        displayText();
         return;
       }
 
       if (e.key === letterBox2.textContent.toLowerCase()) {
-        currentStep = dialogue[currentStep].answers.second.next;
-        console.log(`currentStep value is ${currentStep}`);
-        displayText(currentStep);
-        return;
-      }
-
-      if (e.key === letterBox3.textContent.toLowerCase()) {
-        currentStep = dialogue[currentStep].answers.third.next;
-        console.log(`currentStep value is ${currentStep}`);
-        displayText(currentStep);
+        currentDialogueStep = dialogue[currentDialogueStep].answers.third.next;
+        console.log(`currentDialogueStep value is ${currentDialogueStep}`);
+        displayText();
         return;
       }
     });
   }
 
   // Free-typing mode
+  // Two-stage approach: 1) select response using single key press; 2) execute response by typing it out
+
+  if (gameMode === 'free-typing') {
+    window.addEventListener('keyup', e => {
+      // Stage 1: Response selection with single key press
+
+      console.log(e.key);
+
+      if (
+        e.key === letterBox0.textContent.toLowerCase() &&
+        typingContainerShowing === false
+      ) {
+        letterBox0.classList.add('hidden');
+        letterBox1.classList.add('greyed-out');
+        letterBox2.classList.add('greyed-out');
+        typedResponseContainer0.classList.remove('hidden');
+        typedResponseContainer0.classList.add('active-typing-container');
+        typingContainerShowing = true;
+        selectedResponse = responseText0;
+        selectedResponseIndex = 0;
+
+        responseText0 = dialogue[currentDialogueStep].answers.first.text;
+        responseText1 = dialogue[currentDialogueStep].answers.second.text;
+        responseText2 = dialogue[currentDialogueStep].answers.third.text;
+
+        const responseTexts = [responseText0, responseText1, responseText2];
+
+        maxResponseLength = Math.max(...responseTexts.map(el => el.length));
+
+        // Loop over responses
+        for (let i = 0; i <= 2; i++) {
+          // Loop over characters in each response
+          for (let j = 0; j <= responseTexts[i].length - 1; j++) {
+            // Create a placeholder typing box
+            document
+              .querySelector(`.typed-response-container-${i}`)
+              .insertAdjacentHTML(
+                'beforeend',
+                `<div class="typed-character-box typed-character-box-${i}-${j} placeholder">${responseTexts[i][j]}</div>`
+              );
+            // Prevent collapse of boxes with only a space
+            if (responseTexts[i][j] === ' ') {
+              document
+                .querySelector(`.typed-character-box-${i}-${j}`)
+                .classList.add('spacer');
+            }
+          }
+        }
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.remove('placeholder');
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.add('cursor-highlight');
+        return;
+      }
+
+      if (
+        e.key === letterBox1.textContent.toLowerCase() &&
+        typingContainerShowing === false
+      ) {
+        letterBox0.classList.add('greyed-out');
+        letterBox1.classList.add('hidden');
+        letterBox2.classList.add('greyed-out');
+        typedResponseContainer1.classList.remove('hidden');
+        typedResponseContainer1.classList.add('active-typing-container');
+        typingContainerShowing = true;
+        selectedResponse = responseText1;
+        selectedResponseIndex = 1;
+
+        responseText0 = dialogue[currentDialogueStep].answers.first.text;
+        responseText1 = dialogue[currentDialogueStep].answers.second.text;
+        responseText2 = dialogue[currentDialogueStep].answers.third.text;
+
+        const responseTexts = [responseText0, responseText1, responseText2];
+
+        maxResponseLength = Math.max(...responseTexts.map(el => el.length));
+
+        // Loop over responses
+        for (let i = 0; i <= 2; i++) {
+          // Loop over characters in each response
+          for (let j = 0; j <= responseTexts[i].length - 1; j++) {
+            // Create a placeholder typing box
+            document
+              .querySelector(`.typed-response-container-${i}`)
+              .insertAdjacentHTML(
+                'beforeend',
+                `<div class="typed-character-box typed-character-box-${i}-${j} placeholder">${responseTexts[i][j]}</div>`
+              );
+            // Prevent collapse of boxes with only a space
+            if (responseTexts[i][j] === ' ') {
+              document
+                .querySelector(`.typed-character-box-${i}-${j}`)
+                .classList.add('spacer');
+            }
+          }
+        }
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.remove('placeholder');
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.add('cursor-highlight');
+        return;
+      }
+      if (
+        e.key === letterBox2.textContent.toLowerCase() &&
+        typingContainerShowing === false
+      ) {
+        letterBox0.classList.add('greyed-out');
+        letterBox1.classList.add('greyed-out');
+        letterBox2.classList.add('hidden');
+        typedResponseContainer2.classList.remove('hidden');
+        typedResponseContainer2.classList.add('active-typing-container');
+        typingContainerShowing = true;
+        selectedResponse = responseText2;
+        selectedResponseIndex = 2;
+
+        responseText0 = dialogue[currentDialogueStep].answers.first.text;
+        responseText1 = dialogue[currentDialogueStep].answers.second.text;
+        responseText2 = dialogue[currentDialogueStep].answers.third.text;
+
+        const responseTexts = [responseText0, responseText1, responseText2];
+
+        maxResponseLength = Math.max(...responseTexts.map(el => el.length));
+
+        // Loop over responses
+        for (let i = 0; i <= 2; i++) {
+          // Loop over characters in each response
+          for (let j = 0; j <= responseTexts[i].length - 1; j++) {
+            // Create a placeholder typing box
+            document
+              .querySelector(`.typed-response-container-${i}`)
+              .insertAdjacentHTML(
+                'beforeend',
+                `<div class="typed-character-box typed-character-box-${i}-${j} placeholder">${responseTexts[i][j]}</div>`
+              );
+            // Prevent collapse of boxes with only a space
+            if (responseTexts[i][j] === ' ') {
+              document
+                .querySelector(`.typed-character-box-${i}-${j}`)
+                .classList.add('spacer');
+            }
+          }
+        }
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.remove('placeholder');
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.add('cursor-highlight');
+        return;
+      }
+
+      // Stage 2: Typing out the response
+
+      // Backspace functionality
+
+      if (
+        e.key === 'Backspace' &&
+        0 < currentTypingIndex &&
+        currentTypingIndex < selectedResponse.length
+      ) {
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.remove('cursor-highlight');
+
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          )
+          .classList.add('placeholder');
+
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${
+              currentTypingIndex - 1
+            }`
+          )
+          .classList.add('cursor-highlight');
+
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${
+              currentTypingIndex - 1
+            }`
+          )
+          .classList.remove('incorrect-letter', 'incorrect-space');
+
+        currentTypingIndex--;
+      }
+
+      if (
+        e.key === 'Backspace' &&
+        0 < currentTypingIndex &&
+        currentTypingIndex === selectedResponse.length
+      ) {
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${
+              currentTypingIndex - 1
+            }`
+          )
+          .classList.add('cursor-highlight');
+
+        document
+          .querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${
+              currentTypingIndex - 1
+            }`
+          )
+          .classList.remove('incorrect-letter', 'incorrect-space');
+
+        document.querySelector(
+          `.typed-character-box-${selectedResponseIndex}-${
+            currentTypingIndex - 1
+          }`
+        ).textContent = selectedResponse[currentTypingIndex - 1];
+
+        document.querySelector(
+          `.typed-character-box-${selectedResponseIndex}-${
+            currentTypingIndex - 1
+          }`
+        ).style.width = document.querySelector(
+          `.response-character-box-${selectedResponseIndex}-${
+            currentTypingIndex - 1
+          }`
+        ).style.width = 'auto';
+
+        currentTypingIndex--;
+      }
+
+      if (
+        typingContainerShowing === true &&
+        !excludedKeys.includes(e.key) &&
+        currentTypingIndex < selectedResponse.length
+      ) {
+        console.log('Typed key registered');
+
+        if (
+          0 <= currentTypingIndex &&
+          currentTypingIndex < selectedResponse.length - 1
+        ) {
+          document
+            .querySelector(
+              `.typed-character-box-${selectedResponseIndex}-${
+                currentTypingIndex + 1
+              }`
+            )
+            .classList.remove('placeholder');
+
+          document
+            .querySelector(
+              `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+            )
+            .classList.remove('cursor-highlight');
+
+          document
+            .querySelector(
+              `.typed-character-box-${selectedResponseIndex}-${
+                currentTypingIndex + 1
+              }`
+            )
+            .classList.add('cursor-highlight');
+        }
+
+        if (currentTypingIndex === selectedResponse.length - 1) {
+          document
+            .querySelector(
+              `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+            )
+            .classList.remove('cursor-highlight');
+        }
+
+        document.querySelector(
+          `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+        ).textContent = `${e.key}`;
+
+        // Adjust width of prompt letter boxes to match what is typed
+
+        if (
+          document
+            .querySelector(
+              `.response-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+            )
+            .getBoundingClientRect().width <
+          document
+            .querySelector(
+              `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+            )
+            .getBoundingClientRect().width
+        ) {
+          document.querySelector(
+            `.response-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          ).style.width =
+            document
+              .querySelector(
+                `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+              )
+              .getBoundingClientRect().width + 'px';
+        } else {
+          document.querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          ).style.width =
+            document
+              .querySelector(
+                `.response-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+              )
+              .getBoundingClientRect().width + 'px';
+        }
+        // Red lettering for incorrectly typed characters
+        if (
+          document.querySelector(
+            `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          ).textContent !==
+          document.querySelector(
+            `.response-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+          ).textContent
+        ) {
+          if (
+            document.querySelector(
+              `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+            ).textContent === ' '
+          ) {
+            document
+              .querySelector(
+                `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+              )
+              .classList.add('incorrect-space');
+          } else
+            document
+              .querySelector(
+                `.typed-character-box-${selectedResponseIndex}-${currentTypingIndex}`
+              )
+              .classList.add('incorrect-letter');
+        }
+
+        if (currentTypingIndex < selectedResponse.length) {
+          currentTypingIndex++;
+        }
+        if (currentTypingIndex === selectedResponse.length - 1) {
+        }
+        console.log(`New currentTypingIndex: ${currentTypingIndex}`);
+      }
+    });
+  }
 };
 
 const initializeGame = function () {
-  if (gameMode === 'single-letter') {
-    document
-      .querySelectorAll('.letter-box')
-      .forEach(el => el.classList.remove('hidden'));
-    document
-      .querySelectorAll('.typed-response-container')
-      .forEach(el => el.classList.add('hidden'));
-  }
-
-  if (gameMode === 'free-typing') {
-    document
-      .querySelectorAll('.letter-box')
-      .forEach(el => el.classList.add('hidden'));
-    document
-      .querySelectorAll('.typed-response-container')
-      .forEach(el => el.classList.remove('hidden'));
-  }
+  displayText();
+  listenKeys();
 };
 
 // Event Listeners
 
 // Initialization
 
-displayText(0);
-listenKeys();
+initializeGame();
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Tests
 
-/*
+// console.log('Original:', letters[0]);
+// randomizeLetters(0);
+// console.log('After randomization:');
+// console.log(letters[0]);
+// randomizeLetters(0);
+// console.log(letters[0]);
+// randomizeLetters(0);
+// console.log(letters[0]);
+// randomizeLetters(0);
+// console.log(letters[0]);
 
-console.log('Original:', letters[0]);
-randomizeLetters(0);
-console.log('After randomization:');
-console.log(letters[0]);
-randomizeLetters(0);
-console.log(letters[0]);
-randomizeLetters(0);
-console.log(letters[0]);
-randomizeLetters(0);
-console.log(letters[0]);
+// console.log(
+//   `Actual display width of upper container: ${
+//     document.querySelector('.upper-container').offsetWidth
+//   }`
+// );
 
-console.log(
-  `Actual display width of upper container: ${
-    document.querySelector('.upper-container').offsetWidth
-  }`
-);
+// console.log(
+//   `Actual display width of upper option container: ${
+//     document.querySelector('.option1').offsetWidth
+//   }`
+// );
 
-console.log(
-  `Actual display width of upper option container: ${
-    document.querySelector('.option2').offsetWidth
-  }`
-);
+// console.log(
+//   `Actual display width of middle container: ${
+//     document.querySelector('.middle-container').offsetWidth
+//   }`
+// );
 
-console.log(
-  `Actual display width of middle container: ${
-    document.querySelector('.middle-container').offsetWidth
-  }`
-);
+// console.log(
+//   `Actual display width of middle option containers: ${
+//     document.querySelector('.option0').offsetWidth
+//   } and ${document.querySelector('.option2').offsetWidth}`
+// );
 
-console.log(
-  `Actual display width of middle option containers: ${
-    document.querySelector('.option1').offsetWidth
-  } and ${document.querySelector('.option3').offsetWidth}`
-);
+// console.log(
+//   `Actual display width of lower container: ${
+//     document.querySelector('.lower-container').offsetWidth
+//   }`
+// );
 
-console.log(
-  `Actual display width of lower container: ${
-    document.querySelector('.lower-container').offsetWidth
-  }`
-);
-
-console.log(
-  `Actual display width of incoming comm container: ${
-    document.querySelector('.option1').offsetWidth
-  }`
-);
-
-*/
+// console.log(
+//   `Actual display width of incoming comm container: ${
+//     document.querySelector('.option0').offsetWidth
+//   }`
+// );
