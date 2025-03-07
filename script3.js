@@ -23,9 +23,9 @@ const typedResponseContainer2 = document.querySelector(
 
 // Variable Declarations
 
-let letterGroup = 0;
+let letterGroup = 1;
 let currentDialogueStep = 0;
-let gameMode = 'free-typing';
+let gameMode = 'single-letter';
 let currentTypingIndex = 0;
 let maxResponseLength = 0;
 let typingContainerShowing = false;
@@ -56,6 +56,7 @@ const excludedKeys = [
   'ArrowDown',
   'ArrowUp',
   'Backspace',
+  'Escape',
 ];
 
 // const dialogue = [
@@ -4420,6 +4421,30 @@ const displayText = function () {
     letterBox1.textContent = letters[letterGroup][1];
     letterBox2.textContent = letters[letterGroup][2];
 
+    letterBox0.classList.remove('greyed-out', 'hidden');
+    letterBox1.classList.remove('greyed-out', 'hidden');
+    letterBox2.classList.remove('greyed-out', 'hidden');
+
+    typedResponseContainer0.classList.add('hidden');
+    typedResponseContainer1.classList.add('hidden');
+    typedResponseContainer2.classList.add('hidden');
+
+    typedResponseContainer0.innerHTML = '';
+    typedResponseContainer1.innerHTML = '';
+    typedResponseContainer2.innerHTML = '';
+
+    typedResponseContainer0.classList.remove('active-typing-container');
+    typedResponseContainer1.classList.remove('active-typing-container');
+    typedResponseContainer2.classList.remove('active-typing-container');
+
+    typingContainerShowing = false;
+
+    currentTypingIndex = 0;
+
+    document
+      .querySelectorAll(`.cancel-container`)
+      .forEach(el => el.classList.add('hidden'));
+
     responseText0 = dialogue[currentDialogueStep].answers.first.text;
     responseText1 = dialogue[currentDialogueStep].answers.second.text;
     responseText2 = dialogue[currentDialogueStep].answers.third.text;
@@ -4516,6 +4541,11 @@ const listenKeys = function () {
         selectedResponse = responseText0;
         selectedResponseIndex = 0;
 
+        // Showing Escape key graphic
+        document
+          .querySelector(`.cancel-container-${selectedResponseIndex}`)
+          .classList.remove('hidden');
+
         responseText0 = dialogue[currentDialogueStep].answers.first.text;
         responseText1 = dialogue[currentDialogueStep].answers.second.text;
         responseText2 = dialogue[currentDialogueStep].answers.third.text;
@@ -4569,6 +4599,11 @@ const listenKeys = function () {
         selectedResponse = responseText1;
         selectedResponseIndex = 1;
 
+        // Showing Escape key graphic
+        document
+          .querySelector(`.cancel-container-${selectedResponseIndex}`)
+          .classList.remove('hidden');
+
         responseText0 = dialogue[currentDialogueStep].answers.first.text;
         responseText1 = dialogue[currentDialogueStep].answers.second.text;
         responseText2 = dialogue[currentDialogueStep].answers.third.text;
@@ -4621,6 +4656,11 @@ const listenKeys = function () {
         selectedResponse = responseText2;
         selectedResponseIndex = 2;
 
+        // Showing Escape key graphic
+        document
+          .querySelector(`.cancel-container-${selectedResponseIndex}`)
+          .classList.remove('hidden');
+
         responseText0 = dialogue[currentDialogueStep].answers.first.text;
         responseText1 = dialogue[currentDialogueStep].answers.second.text;
         responseText2 = dialogue[currentDialogueStep].answers.third.text;
@@ -4663,6 +4703,33 @@ const listenKeys = function () {
 
       // Stage 2: Typing out the response
 
+      // Escape functionality
+
+      if (e.key === 'Escape') {
+        // Reset all response displays
+        letterBox0.classList.remove('greyed-out', 'hidden');
+        letterBox1.classList.remove('greyed-out', 'hidden');
+        letterBox2.classList.remove('greyed-out', 'hidden');
+
+        typedResponseContainer0.classList.add('hidden');
+        typedResponseContainer1.classList.add('hidden');
+        typedResponseContainer2.classList.add('hidden');
+
+        typedResponseContainer0.innerHTML = '';
+        typedResponseContainer1.innerHTML = '';
+        typedResponseContainer2.innerHTML = '';
+
+        typedResponseContainer0.classList.remove('active-typing-container');
+        typedResponseContainer1.classList.remove('active-typing-container');
+        typedResponseContainer2.classList.remove('active-typing-container');
+
+        typingContainerShowing = false;
+
+        currentTypingIndex = 0;
+
+        displayText(currentDialogueStep);
+      }
+
       // Backspace functionality
 
       if (
@@ -4699,6 +4766,33 @@ const listenKeys = function () {
           .classList.remove('incorrect-letter', 'incorrect-space');
 
         currentTypingIndex--;
+      }
+
+      // Enter functionality
+      if (e.key === 'Enter' && currentTypingIndex === selectedResponse.length) {
+        if (selectedResponseIndex === 0) {
+          currentDialogueStep =
+            dialogue[currentDialogueStep].answers.first.next;
+          console.log(`currentDialogueStep value is ${currentDialogueStep}`);
+          displayText();
+          return;
+        }
+
+        if (selectedResponseIndex === 1) {
+          currentDialogueStep =
+            dialogue[currentDialogueStep].answers.second.next;
+          console.log(`currentDialogueStep value is ${currentDialogueStep}`);
+          displayText();
+          return;
+        }
+
+        if (selectedResponseIndex === 2) {
+          currentDialogueStep =
+            dialogue[currentDialogueStep].answers.third.next;
+          console.log(`currentDialogueStep value is ${currentDialogueStep}`);
+          displayText();
+          return;
+        }
       }
 
       if (
