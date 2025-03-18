@@ -7,6 +7,7 @@
 .overall-container {
   position: absolute;
   display: flex;
+  justify-content: space-evenly;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
@@ -16,7 +17,7 @@
 .upper-container {
   position: relative;
   display: flex;
-  height: 34%;
+  height: 20%;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -36,7 +37,7 @@
 .middle-container {
   position: relative;
   display: flex;
-  height: 33%;
+  height: 40%;
   width: 100%;
   justify-content: space-around;
   align-items: center;
@@ -46,7 +47,7 @@
 .lower-container {
   position: relative;
   display: flex;
-  height: 33%;
+  height: 40%;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -61,7 +62,7 @@
   text-align: center;
   padding-left: 10vw;
   padding-right: 10vw;
-  height: 80%;
+  height: 100%;
   width: 100%;
   /* background-color: rgb(75, 68, 66); */
   font-size: 6vh;
@@ -88,8 +89,10 @@
 .typed-response-container {
   position: relative;
   display: flex;
+  opacity: 1;
   justify-content: flex-start;
-
+  height: 8vh;
+  margin: 2vh;
   border: 1px solid rgb(72, 234, 72);
 }
 
@@ -98,6 +101,7 @@
   display: flex;
   flex-direction: row;
   background-color: rgb(65, 60, 58);
+  order: 2;
 }
 
 .response-character-box {
@@ -141,7 +145,8 @@
 .letter-box {
   position: relative;
   display: flex;
-  margin-top: 2vh;
+  opacity: 1;
+  margin: 2vh;
   justify-content: center;
   align-items: center;
   border: 1px solid black;
@@ -153,11 +158,13 @@
   border-radius: 1vh;
   color: white;
   box-shadow: 0 0 1vh 1vh grey;
+  order: 1;
   /* z-index: 10; */
 }
 
 .cancel-container {
-  display: flex;
+  display: none;
+  opacity: 0;
   position: absolute;
   top: 0%;
   left: 50%;
@@ -166,7 +173,7 @@
   align-items: center;
   z-index: 5;
   font-size: 3vh;
-  color: beige;
+  color: rgba(245, 245, 220, 0.9);
 }
 
 .escape-key {
@@ -178,14 +185,58 @@
   align-items: center;
   border: 1px solid black;
   background-color: rgb(15, 15, 17);
+  height: 3vh;
+  width: 6vh;
+  font-family: Roboto;
+  font-size: 1.5vh;
+  border-radius: 1vh;
+  color: white;
+  box-shadow: 0 0 1vh 0.5vh grey;
+  /* z-index: 10; */
+}
+
+.submit-container {
+  display: none;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 10%);
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+  font-size: 3vh;
+  color: rgba(245, 245, 220, 0.9);
+}
+
+.enter-key {
+  position: relative;
+  display: flex;
+  /* margin-top: 2vh; */
+  margin-right: 2vh;
+  justify-content: end;
+  align-items: end;
+  padding: 0.5vh;
+  border: 1px solid black;
+  background-color: rgb(15, 15, 17);
   height: 4vh;
   width: 8vh;
   font-family: Roboto;
-  font-size: 3vh;
+  font-size: 1.5vh;
   border-radius: 1vh;
   color: white;
-  box-shadow: 0 0 1vh 1vh grey;
+  box-shadow: 0 0 1vh 0.5vh grey;
   /* z-index: 10; */
+}
+
+/* Adjusting height of response boxes to equalize vertical spaces */
+.response-0,
+.response-2 {
+  transform: translate(0%, calc(100% / 32));
+}
+
+.response-1 {
+  transform: translate(0%, calc(-100% / 32));
 }
 
 .incorrect-letter {
@@ -201,14 +252,23 @@
   opacity: 0;
 }
 
-.greyed-out {
-  opacity: 0.4;
-}
-
 .cursor-highlight {
   background-color: yellow;
   opacity: 0.5;
   color: rgba(0, 0, 0, 0);
+}
+
+.faded-out {
+  /* transition: opacity 0.5s ease-out; */
+}
+
+.faded-in {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.greyed-out {
+  opacity: 0.4;
 }
 
 .hidden {
