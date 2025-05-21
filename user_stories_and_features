@@ -1,0 +1,80 @@
+Goal: Make a second, more extensive prototype for the game, incorporating whole-word typing and a visual, themed game mechanic.
+
+Timeline
+First 20 hours: functionality
+Last 4 hours: aesthetics
+
+
+User Stories
+(1) As a player, I want to learn how to type.
+(2) As a player, I want to sense a detective-story atmosphere while playing.
+
+
+Features Ideas
+A display of what is to be typed which allows the player to type just underneath each line (One container for the word, another underneath it for typing.)
+
+A source of words and texts to populate the display (An object containing key-value pairs of labelled arrays of words.)
+
+A function which transforms words into indexed lists of letters
+
+Dynamic generation of letter boxes for words (insert HTML into the prompt and typing containers to create letter boxes of quantity equal to the length of the letter array. These will be automatically assigned a class indicating the index of the letter so that they can be populated as letters are typed)
+
+Random change of position of the outer word container when new word is shown, avoiding going offscreen
+
+Call each word from the word bank in a random order but only once (shuffle the word bank array upon level initialization, then call words from it in order) 
+
+Basic styling of prompt and typing boxes
+
+Automatic selection of a new word once the current one is typed
+
+Comparison of the typed word to the displayed word. Incorrect letters highlighted or in red? (The displayed word is turned into an array of letters, and the typed word creates an array. These arrays are compared after each key press, and the letter is shown accordingly)
+
+A moving highlight of the current letter on the display text (a class added and removed as needed for the current letter's container)
+
+Create equally wide letter boxes for all letters so that typed and prompt letters line up even if different
+
+Make a summary list popup of words typed, including mistakes and accuracy percentage
+
+Use a public API to populate word bank with random words
+
+Add concrete wall background image
+
+Add sounds like scribbling, notepad-themed visuals, film noir style
+
+Create moving spotlight which reveals word beneath against an interesting backdrop
+
+Add shadow border to spotlight circle
+
+Make the starting position of the concrete background different depending on the starting position of the spotlight
+
+Add a conical flashlight beam starting offscreen bottom-center and ending at the spotlight
+
+Make the text disappear during transitions to create illusion of words already being at fixed positions on the background
+
+Shift the concrete background in the circle according to position, with animation to smooth the transition
+
+Adjust the shift function to keep spotlight onscreen (adjust shift not for height of box, but for height of spotlight–which is just the width of the box)
+
+Adjust the spotlight and box vertical alignment such that they're centered on each other vertically and don't go offscreen at the top (offset the minimum possible value of the top property of the outerContainer by half the height of the spotlight, which is half the width of the promptContainer; then, decrease the value of the top property of the spotlight by that same amount) 
+
+Top value should be at least half the width of the promptCont and at most (height of viewport - height of outerCont - half width of promptCont)
+
+Use BoundingClientRect for width and height references, not top and left
+
+Correct letter spacing
+
+Remove positioning glitching of word box on page load (add event listener for DOMContentLoaded which contains the initialization function?)
+
+Make the width of the outerCont variable according to word length; right now, it seems to be static
+
+Add a button to turn on the flashlight ( type to turn it on?) and a click sound to turn it on
+
+If perfectly typed, effect triggers to make them both golden/orange and flash
+
+Prepopulate the typing letter boxes with blank text content and then add the letters after, so that they line up with the highlight above
+
+Whole-sentence typing option or automatic progression
+
+Look at the CSS from your course projects and incorporate what you see
+
+On error from API return, revert to built-in word list, update index of word
