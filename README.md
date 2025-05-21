@@ -1,4 +1,4 @@
-# Typing Game - Prototype 2
+#  Sleuth Typing Game - Prototype 2
 
 _Part of a series of prototypes exploring the idea of a gamified typing tutor._
 _Each was developed in about 24 hours (or less) of total work._
