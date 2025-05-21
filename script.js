@@ -64,7 +64,7 @@ const exemptKeys = [
   'Backspace',
   'Escape',
   'Tab',
-  'Space',
+  ' ',
 ];
 
 let firstLetterTyped = false;
