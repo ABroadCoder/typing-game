@@ -1,6 +1,8 @@
 'use strict';
 
 // HTML Element References
+const overlay = document.querySelector('.overlay');
+const flashlightButton = document.querySelector('.flashlight-button');
 const outerContainer = document.querySelector('.outer-container');
 const promptContainer = document.querySelector('.prompt-container');
 const typingContainer = document.querySelector('.typing-container');
@@ -12,11 +14,30 @@ const typingLetterContainer = document.querySelector(
 );
 const spotlight = document.querySelector('.spotlight');
 const moving = document.querySelectorAll('.moving');
+const currentLetter = document.querySelector('.current-letter');
 
 // Initial Variables
-let wordBank = ['go', 'fight', 'win', 'glass', 'mystery', 'classical'];
+let wordBank = [
+  'go',
+  'fight',
+  'win',
+  'glass',
+  'mystery',
+  'classical',
+  'might',
+  'luck',
+  'detective',
+  'clue',
+  'notes',
+  'suspect',
+  'event',
+  'skill',
+  'solve',
+];
 let shuffledWordBank;
 let wordQuantity = 100;
+const flashlightSound = new Audio('flashlight_on.wav');
+// let initialPosition = true;
 
 // API call to replace default wordBank with random word entries
 // function populateWordBank() {
@@ -92,6 +113,11 @@ const shuffleWords = function () {
 async function changeWordPosition() {
   // await populateWordBank();
 
+  promptContainer.classList.remove('visible');
+
+  const oldX = outerContainer.style.left;
+  const oldY = outerContainer.style.top;
+
   const randomHeightRatio = Math.random();
   const randomWidthRatio = Math.random();
   const boxHeight = outerContainer.getBoundingClientRect().height;
@@ -99,16 +125,21 @@ async function changeWordPosition() {
 
   moving.forEach(el => {
     el.style.top = `${
-      0.25 * boxWidth + (window.innerHeight - boxHeight - 0.5 * boxWidth) * 1
+      0.25 * boxWidth +
+      (window.innerHeight - boxHeight - 0.5 * boxWidth) * randomHeightRatio
     }px`;
     el.style.left = `${(window.innerWidth - boxWidth) * randomWidthRatio}px`;
   });
-  // moving.style.top = `${
-  //   (window.innerHeight - moving.offsetHeight) * Math.random()
-  // }px`;
-  // moving.style.left = `${
-  //   (window.innerWidth - moving.offsetWidth) * Math.random()
-  // }px`;
+
+  spotlight.style.backgroundPosition = `${
+    -parseFloat(outerContainer.style.left) + parseFloat(oldX)
+  }px ${-parseFloat(outerContainer.style.top) + parseFloat(oldY)}px`;
+
+  console.log(spotlight.style.backgroundPosition);
+
+  setTimeout(() => {
+    promptContainer.classList.add('visible');
+  }, 300);
 }
 
 const displayPrompt = function (i) {
@@ -131,10 +162,12 @@ const displayTyping = function (i) {
     let newTypingLetterContainer = document.createElement('div');
     newTypingLetterContainer.classList.add('typing-letter-container');
     newTypingLetterContainer.classList.add(`typing-letter-${j}`);
+    newTypingLetterContainer.classList.add('placeholder');
     typingContainer.insertAdjacentElement(
       'beforeend',
       newTypingLetterContainer
     );
+    newTypingLetterContainer.textContent = `${wordBank[i][j]}`;
   }
 };
 
@@ -144,7 +177,9 @@ const displaySpotlight = function () {
   const spotlightRect = spotlight.getBoundingClientRect();
   spotlight.style.width = `${promptRect.width}px`;
   spotlight.style.height = `${promptRect.width}px`;
-  spotlight.style.top = `${outerRect.top}px`;
+  spotlight.style.top = `${
+    parseFloat(spotlight.style.top) - 0.25 * promptRect.width
+  }px`;
   console.log(outerRect, outerRect.left, outerRect.top);
   console.log(spotlightRect, spotlightRect.left, spotlightRect.top);
 };
@@ -157,10 +192,21 @@ const compareLetters = function (index) {
     document
       .querySelector(`.typing-letter-${index}`)
       .classList.add('incorrect-letter');
+    document
+      .querySelector(`.typing-letter-${index}`)
+      .classList.remove('placeholder');
+  } else if (
+    document.querySelector(`.prompt-letter-${index}`).textContent ===
+    document.querySelector(`.typing-letter-${index}`).textContent
+  ) {
+    document
+      .querySelector(`.typing-letter-${index}`)
+      .classList.remove('placeholder');
   }
 };
 
 const generateWords = function () {
+  // initialPosition = false;
   changeWordPosition();
 
   numberLettersTyped = 0;
@@ -168,6 +214,8 @@ const generateWords = function () {
   displayPrompt(currentWordIndex);
   displayTyping(currentWordIndex);
   displaySpotlight();
+  outerContainer.style.opacity = 1;
+  spotlight.style.opacity = 1;
 
   document.querySelector('.prompt-letter-0').classList.add('current-letter');
 
@@ -196,7 +244,7 @@ const generateWords = function () {
         currentWordIndex++;
         this.setTimeout(() => {
           generateWords(currentWordIndex);
-        }, 1000);
+        }, 850);
       }
     }
     //Handling before-end cases
@@ -221,9 +269,22 @@ async function initializeLevel() {
   shuffleWords();
   generateWords();
 }
+
+// Global event listeners
+
+window.addEventListener('load', function () {
+  if (!overlay.classList.contains('hidden')) {
+    flashlightButton.addEventListener('click', function () {
+      overlay.classList.add('hidden');
+      flashlightSound.play();
+    });
+  }
+});
 // Function calls
-initializeLevel();
-console.log(wordBank);
+document.addEventListener('DOMContentLoaded', () => {
+  initializeLevel();
+  console.log(wordBank);
+});
 
 // console.log(wordBank);
 // console.log(shuffledWordBank);
